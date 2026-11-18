@@ -1,10 +1,4 @@
-//
-//  AppleQuestStudentsApp.swift
-//  AppleQuestStudents
-//
-//  Created by octavianus on 21/10/26.
-//
-
+import SwiftData
 import SwiftUI
 
 @main
@@ -13,5 +7,6 @@ struct AppleQuestStudentsApp: App {
         WindowGroup {
             ContentView()
         }
+        .modelContainer(for: SavedQuest.self)
     }
 }
