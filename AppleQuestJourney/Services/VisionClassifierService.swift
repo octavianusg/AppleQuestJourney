@@ -1,5 +1,6 @@
 import Foundation
 import CoreGraphics
+import CoreVideo
 import ImageIO
 import Vision
 
@@ -178,5 +179,63 @@ nonisolated enum VisionClassifierService {
             item.identifier.trimmingCharacters(in: .whitespacesAndNewlines).lowercased() == normalizedTarget
                 && item.confidence >= threshold
         }
+    }
+
+    /// Classifies a live camera `CVPixelBuffer` synchronously on the caller's background queue using `VNClassifyImageRequest` (`REQ-S04`, `REQ-S05`).
+    static func classifyPixelBuffer(
+        _ pixelBuffer: CVPixelBuffer,
+        orientation: CGImagePropertyOrientation = .right,
+        maxResults: Int = 5,
+        minimumConfidence: Double = 0.01
+    ) throws -> [VisionObservationItem] {
+        let request = VNClassifyImageRequest()
+        let handler = VNImageRequestHandler(cvPixelBuffer: pixelBuffer, orientation: orientation, options: [:])
+        do {
+            try handler.perform([request])
+        } catch {
+            throw VisionClassifierError.classificationFailed(error.localizedDescription)
+        }
+
+        let observations = request.results ?? []
+        return rankObservations(
+            observations.map {
+                VisionObservationItem(
+                    identifier: $0.identifier,
+                    confidence: Double($0.confidence)
+                )
+            },
+            maxResults: maxResults,
+            minimumConfidence: minimumConfidence
+        )
+    }
+
+    /// Evaluates a raw batch of observations for the Student Developer HUD and target match completion (`REQ-S05`, `REQ-S07`).
+    static func evaluateFrameObservations(
+        _ observations: [VisionObservationItem],
+        targetLabel: String,
+        threshold: Double = defaultTargetConfidenceThreshold,
+        hudTopCount: Int = 3
+    ) -> VisionFrameEvaluation {
+        let rankedTop = rankObservations(observations, maxResults: hudTopCount, minimumConfidence: 0.0)
+        let matched = matchingObservation(in: observations, targetLabel: targetLabel, threshold: threshold)
+        return VisionFrameEvaluation(
+            topObservations: rankedTop,
+            matchedObservation: matched
+        )
+    }
+}
+
+/// Value type summarizing a single camera frame's Developer HUD observations and whether the quest's `targetLabel` reached the completion threshold (`REQ-S05`, `REQ-S06`, `REQ-S07`).
+nonisolated struct VisionFrameEvaluation: Sendable, Equatable {
+    static let requestClassName = "VNClassifyImageRequest"
+
+    /// Top `N` (default 3) observations sorted by descending confidence for the Developer HUD (`REQ-S05`).
+    let topObservations: [VisionObservationItem]
+
+    /// Non-nil when an observation matches `quest.targetLabel` with `confidence >= threshold` (`REQ-S07`).
+    let matchedObservation: VisionObservationItem?
+
+    var isTargetMatched: Bool {
+        matchedObservation != nil
     }
 }

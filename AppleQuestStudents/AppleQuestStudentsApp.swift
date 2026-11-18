@@ -7,6 +7,6 @@ struct AppleQuestStudentsApp: App {
         WindowGroup {
             ContentView()
         }
-        .modelContainer(for: SavedQuest.self)
+        .modelContainer(for: SavedQuest.self, isAutosaveEnabled: true)
     }
 }

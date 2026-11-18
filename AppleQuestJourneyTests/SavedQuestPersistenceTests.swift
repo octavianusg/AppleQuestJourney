@@ -7,8 +7,9 @@ import Testing
 @MainActor
 struct SavedQuestPersistenceTests {
     private func makeInMemoryContainer() throws -> ModelContainer {
-        let config = ModelConfiguration(isStoredInMemoryOnly: true)
-        return try ModelContainer(for: SavedQuest.self, configurations: config)
+        let schema = Schema([SavedQuest.self])
+        let config = ModelConfiguration(schema: schema, isStoredInMemoryOnly: true, cloudKitDatabase: .none)
+        return try ModelContainer(for: schema, configurations: [config])
     }
 
     @Test("Completing a quest persists all fields and LearningResource URLs in SwiftData (REQ-S08, REQ-S09)")
@@ -135,7 +136,7 @@ struct SavedQuestPersistenceTests {
         // Simulate complete offline failure on the CloudKit repository
         let offlineRepo = InMemoryQuestRepository(
             initialQuests: [],
-            simulatedError: .cloudKitUnavailable("The Internet connection appears to be offline.")
+            simulatedError: .cloudKitFailure("The Internet connection appears to be offline.")
         )
 
         await #expect(throws: QuestRepositoryError.self) {

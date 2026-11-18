@@ -22,8 +22,13 @@ struct QuestDetailView: View {
         }
         .navigationTitle(quest.title)
         .navigationBarTitleDisplayMode(.inline)
-        .sheet(isPresented: $isPresentingExperienceSheet) {
-            experiencePlaceholderSheet
+        .fullScreenCover(isPresented: $isPresentingExperienceSheet) {
+            VisionExperienceView(
+                quest: quest,
+                onTargetMatched: { confidence in
+                    onSimulateCompletion?(confidence)
+                }
+            )
         }
     }
 
@@ -231,49 +236,6 @@ struct QuestDetailView: View {
             }
         }
         .padding(.top, 4)
-    }
-
-    // MARK: - Experience Sheet Hook (Wired to Live VisionExperienceView in Task 4.2)
-
-    private var experiencePlaceholderSheet: some View {
-        NavigationStack {
-            VStack(spacing: 18) {
-                Image(systemName: "viewfinder.circle.fill")
-                    .font(.system(size: 64))
-                    .foregroundStyle(.blue)
-
-                Text("Vision Scavenger Hunt")
-                    .font(.title2.bold())
-
-                Text("Target Identifier: \(quest.targetLabel)")
-                    .font(.subheadline.monospaced())
-                    .padding(.horizontal, 12)
-                    .padding(.vertical, 6)
-                    .background(.blue.opacity(0.12), in: Capsule())
-
-                if let onSimulateCompletion {
-                    Button {
-                        onSimulateCompletion(0.92)
-                        isPresentingExperienceSheet = false
-                    } label: {
-                        Label("Complete Target Match (92%)", systemImage: "checkmark.seal.fill")
-                            .frame(maxWidth: .infinity)
-                    }
-                    .buttonStyle(.borderedProminent)
-                    .padding(.horizontal, 32)
-                }
-            }
-            .padding(24)
-            .navigationTitle("VNClassifyImageRequest")
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .cancellationAction) {
-                    Button("Close") {
-                        isPresentingExperienceSheet = false
-                    }
-                }
-            }
-        }
     }
 
     private var achievedConfidenceText: String {

@@ -72,7 +72,7 @@ struct StudentRootView: View {
 }
 
 #Preview("Student Root TabView") {
-    let config = ModelConfiguration(isStoredInMemoryOnly: true)
+    let config = ModelConfiguration(isStoredInMemoryOnly: true, cloudKitDatabase: .none)
     let container = try! ModelContainer(for: SavedQuest.self, configurations: config)
     let sampleQuests = InMemoryQuestRepository.previewSampleQuests
     let repo = InMemoryQuestRepository(initialQuests: sampleQuests)

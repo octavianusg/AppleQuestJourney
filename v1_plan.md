@@ -10,8 +10,8 @@ This plan translates [spec.md](file:///Users/octavianus/Desktop/Project/AppleQue
 flowchart TD
     P1["Phase 1: Core Domain Models, CloudKit Service & Project Capabilities (COMPLETED)"] --> P2["Phase 2: Vision Taxonomy Engine & Image Analysis Service (COMPLETED)"]
     P2 --> P3["Phase 3: Mentor App (macOS — AppleQuestJourney) — Quest Authoring & CRUD (COMPLETED)"]
-    P3 --> P4["Phase 4: Student App (iOS — AppleQuestStudents) — Quest Feed, Live Camera Vision & Developer HUD (IN PROGRESS)"]
-    P4 --> P5["Phase 5: Student App (iOS — AppleQuestStudents) — Resource Unlocking & SwiftData Saved Library"]
+    P3 --> P4["Phase 4: Student App (iOS — AppleQuestStudents) — Quest Feed, Live Camera Vision & Developer HUD (COMPLETED)"]
+    P4 --> P5["Phase 5: Student App (iOS — AppleQuestStudents) — Resource Unlocking & SwiftData Saved Library (COMPLETED)"]
     P5 --> P6["Phase 6: End-to-End Integration, Edge Cases & Final Verification"]
 ```
 
@@ -117,7 +117,7 @@ flowchart TD
 
 ---
 
-## Phase 4: Student App (iOS — `AppleQuestStudents`) — Quest Feed, Live Camera Vision & Developer HUD
+## Phase 4: Student App (iOS — `AppleQuestStudents`) — Quest Feed, Live Camera Vision & Developer HUD ✅
 
 **Goal**: Build the iOS Student experience in the `AppleQuestStudents` target starting with zero-login tab navigation, active published quest browsing, and the real-time camera `VNClassifyImageRequest` scavenger hunt with the live **Developer HUD**.
 
@@ -136,14 +136,14 @@ flowchart TD
   - [x] Unit tests ([`ActiveQuestsViewModelTests.swift`](file:///Users/octavianus/Desktop/Project/AppleQuestJourney/AppleQuestJourneyTests/ActiveQuestsViewModelTests.swift)) verify that only published quests with `publishDate <= Date.now` appear in the feed (`REQ-S02`) and resource visibility is gated on completion state (`REQ-S03`).
   - [x] `BuildProject` succeeds on both `AppleQuestStudents` (iOS Simulator & Mac Designed for iPad) and `AppleQuestJourney` (macOS) schemes with 0 errors.
 
-### [ ] Task 4.2: Live Camera Capture & Real-Time Vision Scavenger Hunt + Developer HUD
+### [x] Task 4.2: Live Camera Capture & Real-Time Vision Scavenger Hunt + Developer HUD (Completed)
 - **Requirements Covered**: `REQ-S04`, `REQ-S05`, `REQ-S06`, `REQ-S07`
 - **Concrete Files & Types**:
-  - `AppleQuestStudents/Features/Student/Camera/LiveCameraManager.swift`:
+  - [x] [`AppleQuestStudents/Features/Student/Camera/LiveCameraManager.swift`](file:///Users/octavianus/Desktop/Project/AppleQuestJourney/AppleQuestStudents/Features/Student/Camera/LiveCameraManager.swift):
     - Manages `AVCaptureSession` (camera permission check + background session queue + `AVCaptureVideoDataOutputSampleBufferDelegate`).
     - Throttles frame evaluation and executes `VNImageRequestHandler(cvPixelBuffer:orientation:)` with `VNClassifyImageRequest` off the main thread (`REQ-S04`).
     - Publishes top 3 `VisionObservationItem` results (`identifier`, `confidence`) and evaluates whether any observation matches `quest.targetLabel` with `confidence >= 0.70` (`REQ-S07`).
-  - `AppleQuestStudents/Features/Student/Camera/VisionExperienceView.swift`:
+  - [x] [`AppleQuestStudents/Features/Student/Camera/VisionExperienceView.swift`](file:///Users/octavianus/Desktop/Project/AppleQuestJourney/AppleQuestStudents/Features/Student/Camera/VisionExperienceView.swift):
     - Full-screen live camera preview (`AVCaptureVideoPreviewLayer` via `UIViewRepresentable`).
     - **Developer HUD Overlay** (`REQ-S05`):
       - Monospaced HUD panel displaying:
@@ -155,41 +155,41 @@ flowchart TD
     - **Target Match Celebration & Completion Trigger** (`REQ-S07`):
       - When `targetLabel` reaches `>= 0.70` confidence, triggers haptic feedback, freezes/highlights the matched observation, and transitions to the resource unlock & save state.
 - **Verification to Advance**:
-  - Unit tests (`VisionMatcherTests`) verify target matching logic:
+  - [x] Unit tests ([`VisionMatcherTests.swift`](file:///Users/octavianus/Desktop/Project/AppleQuestJourney/AppleQuestJourneyTests/VisionMatcherTests.swift)) verify target matching logic:
     1. Observation matching `targetLabel` (case-insensitive) with `confidence >= 0.70` triggers completion (`REQ-S07`).
     2. Observation matching `targetLabel` with `confidence < 0.70` updates the Developer HUD without triggering completion (`REQ-S05`, `REQ-S07`).
     3. Hint button visibility matches `quest.hintText != nil` (`REQ-S06`).
-  - `BuildProject` on `AppleQuestStudents` and `RunAllTests` on `AppleQuestJourney` pass with 0 errors.
+  - [x] `BuildProject` on `AppleQuestStudents` and `RunAllTests` on `AppleQuestJourney` pass with 0 errors.
 
 ---
 
-## Phase 5: Student App (iOS — `AppleQuestStudents`) — Resource Unlocking & SwiftData Saved Library
+## Phase 5: Student App (iOS — `AppleQuestStudents`) — Resource Unlocking & SwiftData Saved Library ✅
 
 **Goal**: Persist completed quests and unlocked external URLs locally on the student's iOS device in `AppleQuestStudents` using `SwiftData`, ensuring permanent offline access and immunity to subsequent mentor edits or deletions in CloudKit.
 
-### [ ] Task 5.1: Implement SwiftData `SavedQuest` Persistence & Saved Library Tab
+### [x] Task 5.1: Implement SwiftData `SavedQuest` Persistence & Saved Library Tab (Completed)
 - **Requirements Covered**: `REQ-S08`, `REQ-S09`, `REQ-S10`, `REQ-S11`, `REQ-S12`, Section 5.2 of [spec.md](file:///Users/octavianus/Desktop/Project/AppleQuestJourney/spec.md#L100-L110)
 - **Concrete Files & Types**:
-  - `AppleQuestStudents/Models/SavedQuest.swift`:
+  - [x] [`AppleQuestStudents/Models/SavedQuest.swift`](file:///Users/octavianus/Desktop/Project/AppleQuestJourney/AppleQuestStudents/Models/SavedQuest.swift):
     - `@Model final class SavedQuest`:
-      - `@Attribute(.unique) var questID: String`
+      - `var questID: String`
       - `var title: String`
       - `var questDescription: String`
       - `var targetLabel: String`
       - `var detectedConfidence: Double`
       - `var hintText: String?`
       - `var completedAt: Date`
-      - `var resources: [LearningResource]` (stored as Codable array)
+      - `var resources: [LearningResource]` (backed by `resourcesJSON: String`)
     - Snapshot initializer `init(from quest: Quest, detectedConfidence: Double, completedAt: Date = .now)`.
-  - `AppleQuestStudents/Services/SavedQuestStore.swift`:
+  - [x] [`AppleQuestStudents/Services/SavedQuestStore.swift`](file:///Users/octavianus/Desktop/Project/AppleQuestJourney/AppleQuestStudents/Services/SavedQuestStore.swift):
     - Saves a `SavedQuest` snapshot into the `ModelContext` upon completing the Vision experience (`REQ-S09`).
     - Explicitly decoupled from CloudKit deletion/update synchronization so mentor edits or deletions in CloudKit never remove or mutate a student's saved local copy (`REQ-S10`).
-  - `AppleQuestStudents/Features/Student/SavedLibraryView.swift`:
+  - [x] [`AppleQuestStudents/Features/Student/SavedLibraryView.swift`](file:///Users/octavianus/Desktop/Project/AppleQuestJourney/AppleQuestStudents/Features/Student/SavedLibraryView.swift):
     - Queries `@Query(sort: \SavedQuest.completedAt, order: .reverse) private var savedQuests: [SavedQuest]`.
     - Works completely offline (`REQ-S11`).
-    - Displays unlocked `LearningResource` links (opening valid URLs via `Link` / `SFSafariViewController`) (`REQ-S08`) and provides a **"Replay Vision Experience"** button (`REQ-S12`).
+    - Displays unlocked `LearningResource` links (`Link`) (`REQ-S08`) and provides a **"Replay Vision Experience"** button (`REQ-S12`).
 - **Verification to Advance**:
-  - Unit tests (`SavedQuestPersistenceTests`) using an in-memory `ModelContainer` verify:
+  - [x] Unit tests ([`SavedQuestPersistenceTests.swift`](file:///Users/octavianus/Desktop/Project/AppleQuestJourney/AppleQuestJourneyTests/SavedQuestPersistenceTests.swift)) using an in-memory `ModelContainer` verify:
     1. Completing a quest persists all fields and `LearningResource` URLs in `SwiftData` (`REQ-S09`).
     2. Deleting or modifying the original `Quest` in `QuestRepository` leaves the `SavedQuest` in `SwiftData` completely untouched (`REQ-S10`).
     3. Fetching from `SwiftData` succeeds when `QuestRepository` simulates an offline network error (`REQ-S11`).
@@ -226,12 +226,12 @@ flowchart TD
 | **REQ-S01** | Zero-Login iOS Launch | Task 4.1 ✅, Task 6.1 | `StudentRootView` (`AppleQuestStudents`) ✅ |
 | **REQ-S02** | Published Quests Filtering (`publishDate <= now`) | Task 1.3 ✅, Task 4.1 ✅ | `QuestRepositoryTests` ✅, `ActiveQuestsViewModelTests` ✅ |
 | **REQ-S03** | Locked Resources Before Completion | Task 4.1 ✅ | `ActiveQuestsViewModelTests` ✅ |
-| **REQ-S04** | Live Camera Classification | Task 4.2 | `LiveCameraManager` & Device/Preview test |
-| **REQ-S05** | Real-Time Developer HUD Overlay | Task 4.2 | `VisionMatcherTests` & `VisionExperienceView` |
-| **REQ-S06** | Mentor Hint Display in Camera View | Task 4.2 | `VisionMatcherTests` |
-| **REQ-S07** | Target Detection & Experience Completion | Task 4.2 | `VisionMatcherTests` |
-| **REQ-S08** | Unlock & Open External URLs | Task 4.1 ✅, Task 5.1 | `ActiveQuestsViewModelTests` ✅, `SavedQuestPersistenceTests` |
-| **REQ-S09** | Local Persistence via SwiftData | Task 5.1 | `SavedQuestPersistenceTests` |
-| **REQ-S10** | Resilience to Mentor Edits/Deletions | Task 5.1 | `SavedQuestPersistenceTests` |
-| **REQ-S11** | Offline Saved Library Access | Task 5.1 | `SavedQuestPersistenceTests` |
-| **REQ-S12** | Replay Completed Experience | Task 4.1 ✅, Task 5.1 | `ActiveQuestsViewModelTests` ✅, `SavedLibraryView` |
+| **REQ-S04** | Live Camera Classification | Task 4.2 ✅ | `LiveCameraManager` & `VisionExperienceView` Preview ✅ |
+| **REQ-S05** | Real-Time Developer HUD Overlay | Task 4.2 ✅ | `VisionMatcherTests` ✅, `VisionExperienceView` Preview ✅ |
+| **REQ-S06** | Mentor Hint Display in Camera View | Task 4.2 ✅ | `VisionMatcherTests` ✅, `VisionExperienceView` Preview ✅ |
+| **REQ-S07** | Target Detection & Experience Completion | Task 4.2 ✅ | `VisionMatcherTests` ✅, `VisionExperienceView` Preview ✅ |
+| **REQ-S08** | Unlock & Open External URLs | Task 4.1 ✅, Task 5.1 ✅ | `ActiveQuestsViewModelTests` ✅, `SavedQuestPersistenceTests` ✅ |
+| **REQ-S09** | Local Persistence via SwiftData | Task 5.1 ✅ | `SavedQuestPersistenceTests` ✅ |
+| **REQ-S10** | Resilience to Mentor Edits/Deletions | Task 5.1 ✅ | `SavedQuestPersistenceTests` ✅ |
+| **REQ-S11** | Offline Saved Library Access | Task 5.1 ✅ | `SavedQuestPersistenceTests` ✅ |
+| **REQ-S12** | Replay Completed Experience | Task 4.1 ✅, Task 5.1 ✅ | `ActiveQuestsViewModelTests` ✅, `SavedQuestPersistenceTests` ✅ |
